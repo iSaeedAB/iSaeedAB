@@ -1,53 +1,29 @@
-Here’s a Mermaid.js diagram illustrating SOAR Money’s cash flow system using stocks, flows, delays, and feedback loops.
+# **SOAR Money Cash Flow System**
 
+## **Diagram 1: Cash Flow System in SOAR Money**
+```mermaid
 graph TD;
     
     %% Stocks (Cash Reserves)
-    A[SOAR Money USDC Reserves] -->|Outgoing Transactions| B[User Wallets]
-    A -->|Merchant Settlements| C[Merchants]
-    A -->|Infrastructure Costs| D[Network Fees & Operations]
-    A -->|Compliance Costs| E[KYC & AML Providers]
+    Cash_Reserves["💰 SOAR Money Cash Reserves (USDC)"] -->|Payouts| Outflows["💸 Outflows (Operational Costs, Salaries, Compliance)"];
+    Cash_Reserves -->|Liquidity Reserve| Liquidity_Pool["🔄 Liquidity Pool (On-Chain Buffer)"];
     
     %% Inflows (Revenue Streams)
-    X[User Deposits] -->|New USDC Added| A
-    Y[Transaction Fees] -->|Fees Collected| A
-    Z[Enterprise APIs] -->|Business Payments| A
-    W[Partnerships (Visa, on/off-ramps)] -->|Settlement Revenue| A
-    
+    Users["👤 Users Deposit USDC"] -->|Transaction Fees| Cash_Reserves;
+    Merchants["🏢 Merchants Settlement (USDC Payments)"] -->|Processing Fees| Cash_Reserves;
+    Visa["💳 Visa Settlement (Card Network)"] -->|Revenue Share| Cash_Reserves;
+    Partnerships["🤝 Institutional Partners"] -->|Funding & Liquidity| Cash_Reserves;
+
+    %% Delays
+    subgraph "⏳ Delays in Cash Flow"
+      Merchants -.->|Settlement Delay| Cash_Reserves;
+      Visa -.->|Delayed Payouts| Cash_Reserves;
+    end
+
+    %% Outflows
+    Cash_Reserves -->|Gas Fees & Validator Costs| Infrastructure["⚙️ Blockchain Network Costs (Solana/Ethereum)"];
+    Cash_Reserves -->|User Incentives & Promotions| Incentives["🎁 Cashback & Rewards"];
+
     %% Feedback Loops
-    B -->|More Transactions| Y
-    C -->|More Business Users| Z
-    Y -->|More Revenue for Operations| A
-    Z -->|Reinforce Network Growth| A
-    
-    %% Delays & Risk Mitigation
-    A -.->|Short-Term Buffer| S[Liquidity Pool]
-    A -.->|Yield on Idle Funds| T[DeFi Treasury]
-    
-    %% Expense Controls
-    D -.->|Batch Settlements| A
-    E -.->|Deferred Payments| A
-
-Explanation of the Diagram
-	•	Stock & Flow Structure:
-	•	SOAR Money’s cash reserves (USDC stock) sit at the center.
-	•	Inflows: Users deposit USDC, transaction fees are collected, enterprise clients pay for API services, and partnerships (Visa, on/off-ramps) generate settlement revenue.
-	•	Outflows: Users withdraw USDC, merchants request settlements, and SOAR Money pays infrastructure and compliance costs.
-	•	Feedback Loops:
-	•	More transactions increase fee revenue, which strengthens liquidity.
-	•	More merchants onboard reinforces the network effect, driving more business payments.
-	•	Growth in deposits creates better liquidity conditions, reducing reliance on external funding.
-	•	Delays & Risk Management:
-	•	Liquidity Pool: SOAR Money maintains a short-term buffer for handling liquidity mismatches.
-	•	DeFi Treasury: A portion of idle reserves is placed in low-risk DeFi yield strategies to earn passive income.
-	•	Expense Optimization:
-	•	Batch settlements reduce frequent transaction costs.
-	•	Deferred compliance payments slow down outflows, improving cash retention.
-
-Key Takeaways from This Model
-	1.	Balance liquidity between immediate transaction needs and long-term reserves.
-	2.	Create reinforcing loops to grow transaction volume without increasing costs disproportionately.
-	3.	Manage timing mismatches between inflows (fees, settlements) and outflows (merchant withdrawals, infra costs).
-	4.	Optimize expenses dynamically using batching and DeFi yield on idle funds.
-
-Would you like to simulate different growth scenarios (e.g., fast scaling vs. slow adoption) based on this cash flow structure?
+    Users -->|More Transactions| Growth["📈 Growth Loop (More Users → More Volume → Lower Costs)"];
+    Growth -->|Lower Per-Transaction Costs| Cash_Reserves;
