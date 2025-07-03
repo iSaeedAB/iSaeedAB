@@ -1,12 +1,37 @@
-- 👋 Hi, I’m Saeed @iSaeedAB  
-- 👀 I’m interested in startups, fintech, and money markets.  
-- 🌱 I’m learning AI, Quant and exploring innovative fintech solutions.  
-- 🤖 I’m a heavy AI user, leveraging AI tools to optimize workflows and create impactful solutions.  
-- 🤝 I’m looking to collaborate on projects related to financial technologies, payment infrastructure, and market innovation.  
-- 📫 How to reach me: [LinkedIn](https://www.linkedin.com/in/saeedali/) | [X (Twitter)](https://x.com/iSaeedAB)  
-- 😊 Pronouns: He/Him  
-- ⚡ Fun fact: I thought governments could kill Bitcoin but not XRP... guess who’s laughing now? 🤷‍♂️💸  
-<!---
-iSaeedAB/iSaeedAB is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+# Hi, I'm Saeed Ali 👋
+
+Founder of Tweeq (acquired) | Exploring Crypto, Stablecoins & AI
+
+---
+
+### 👨‍💻 About Me
+
+- **Startup founder:** Built Tweeq from the ground up — now acquired!
+- **Current focus:** Diving deep into the world of crypto, stablecoins, and artificial intelligence.
+- **Mission:** Building groundbreaking products at the intersection of finance and technology.
+
+---
+
+### 🚀 Featured Project
+
+- **AI Crossing Stablecoin:**  
+  Exploring the convergence of AI and stablecoin technology to unlock new financial possibilities.
+
+---
+
+### 🌐 Connect with Me
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/saeedali/)
+
+---
+
+### 💬 Favorite Quote
+
+> "Everything Around You Was Built by People Not Smarter Than You."  
+> — Steve Jobs
+
+---
+
+<!--
+**iSaeedAB/iSaeedAB** is a ✨ special ✨ repository because its README.md (this file) appears on your GitHub profile.
+-->
