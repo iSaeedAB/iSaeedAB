@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soar Money: Year 1 Interactive Financial Blueprint</title>
+    <!-- Chosen Palette: Warm Neutral Analytics (#F8F7F4 background, #333333 text, #4A90E2 primary, #E57373 secondary) -->
+    <!-- Application Structure Plan: A top-down interactive dashboard. It starts with high-level Year 1 KPIs, then features a main interactive chart for key financial trends (Net Income, Revenue, Growth), followed by sections for drilling down into unit economics and growth drivers. A collapsible table provides full data transparency. This structure guides the user from a summary to detailed analysis, making the complex financial story digestible and explorable, which is more effective than a static table. -->
+    <!-- Visualization & Content Choices: Year 1 Totals are in KPI cards (HTML) for quick digestion. The core month-over-month narrative (Net Income J-curve) is a combo Bar/Line chart (Chart.js) to show the profitability crossover against OpEx. Toggles (JS) allow users to explore other trends like Revenue and MAU growth in the same primary chart space. Smaller supporting charts (Line, Doughnut - Chart.js) detail Gross Margin stability and the user growth funnel. A collapsible HTML table provides full data access on demand. This approach uses the best visualization for each data story (trends, proportions, raw numbers) and adds interactivity for user-led exploration, confirming NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 40vh;
+            max-height: 450px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 50vh;
+            }
+        }
+        .kpi-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .details-section summary {
+            cursor: pointer;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Soar Money</h1>
+            <h2 class="mt-2 text-2xl font-semibold text-gray-700">Year 1 Financial Blueprint</h2>
+            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+                This interactive dashboard presents the Year 1 pro-forma income statement for Soar Money, built on our realistic operator model. It visualizes our path to profitability, key growth drivers, and core financial metrics. Use the interactive elements to explore the data.
+            </p>
+        </header>
+
+        <main>
+            <!-- KPIs Section -->
+            <section id="kpi-section" class="mb-12">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800">Year 1 Performance Summary</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
+                    <div class="kpi-card">
+                        <p class="text-sm font-medium text-gray-500">Total Revenue</p>
+                        <p id="kpi-revenue" class="mt-1 text-3xl font-bold text-indigo-600"></p>
+                    </div>
+                    <div class="kpi-card">
+                        <p class="text-sm font-medium text-gray-500">Gross Profit</p>
+                        <p id="kpi-gross-profit" class="mt-1 text-3xl font-bold text-teal-600"></p>
+                    </div>
+                    <div class="kpi-card">
+                        <p class="text-sm font-medium text-gray-500">Net Income</p>
+                        <p id="kpi-net-income" class="mt-1 text-3xl font-bold text-emerald-600"></p>
+                    </div>
+                    <div class="kpi-card">
+                        <p class="text-sm font-medium text-gray-500">End of Year MAUs</p>
+                        <p id="kpi-mau" class="mt-1 text-3xl font-bold text-sky-600"></p>
+                    </div>
+                     <div class="kpi-card col-span-2 md:col-span-1 lg:col-span-1">
+                        <p class="text-sm font-medium text-gray-500">Total TPV</p>
+                        <p id="kpi-tpv" class="mt-1 text-3xl font-bold text-gray-800"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Interactive Chart Section -->
+            <section class="mb-12 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                    <div>
+                        <h3 id="main-chart-title" class="text-xl font-semibold text-gray-800">Path to Profitability (Monthly)</h3>
+                        <p id="main-chart-subtitle" class="text-sm text-gray-500 mt-1">Net Income vs. Key Expense Drivers</p>
+                    </div>
+                    <div id="chart-controls" class="mt-4 sm:mt-0 flex flex-wrap gap-2">
+                        <button data-metric="profitability" class="chart-toggle-btn bg-indigo-600 text-white px-3 py-1.5 text-sm font-medium rounded-md shadow-sm">Profitability</button>
+                        <button data-metric="revenue" class="chart-toggle-btn bg-gray-200 text-gray-700 px-3 py-1.5 text-sm font-medium rounded-md">Revenue</button>
+                        <button data-metric="users" class="chart-toggle-btn bg-gray-200 text-gray-700 px-3 py-1.5 text-sm font-medium rounded-md">User Growth</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Supporting Charts Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800">Unit Economics: Gross Margin Stability</h3>
+                     <p class="text-sm text-gray-500 mt-1">Demonstrates core product profitability after initial ramp-up.</p>
+                    <div class="chart-container" style="height: 35vh; max-height: 320px;">
+                        <canvas id="grossMarginChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800">Growth Engine: User Funnel</h3>
+                    <p class="text-sm text-gray-500 mt-1">Shows monthly new sign-ups vs. net active user growth.</p>
+                    <div class="chart-container" style="height: 35vh; max-height: 320px;">
+                        <canvas id="userFunnelChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Assumptions Section -->
+            <section class="mb-12">
+                 <h3 class="text-xl font-semibold mb-4 text-gray-800">Core Model Assumptions</h3>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                     <div class="kpi-card !p-4 !text-left">
+                         <p class="font-semibold text-indigo-700">Cost per Registered User (CRU)</p>
+                         <p class="text-2xl font-bold mt-1">$5.00</p>
+                         <p class="text-xs text-gray-500 mt-1">Blended cost to acquire a single user sign-up.</p>
+                     </div>
+                      <div class="kpi-card !p-4 !text-left">
+                         <p class="font-semibold text-teal-700">Activation Rate</p>
+                         <p class="text-2xl font-bold mt-1">50%</p>
+                         <p class="text-xs text-gray-500 mt-1">Percentage of new registered users who become MAUs.</p>
+                     </div>
+                      <div class="kpi-card !p-4 !text-left">
+                         <p class="font-semibold text-rose-700">Monthly Churn Rate</p>
+                         <p class="text-2xl font-bold mt-1">3%</p>
+                         <p class="text-xs text-gray-500 mt-1">Percentage of existing MAUs who become inactive each month.</p>
+                     </div>
+                 </div>
+            </section>
+
+
+            <!-- Full Data Table Section -->
+            <section class="details-section bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <summary class="text-xl font-semibold text-gray-800 hover:text-indigo-600 transition-colors">
+                    View Full Year 1 Data Table
+                </summary>
+                <div class="mt-6 overflow-x-auto">
+                    <table id="full-data-table" class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-12 py-6 border-t border-gray-200">
+             <p class="text-sm text-gray-500">&copy; 2025 Soar Money. All projections are illustrative and based on the Realistic Operator Model.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const financialData = {
+                months: ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10", "M11", "M12"],
+                newRegisteredUsers: [100000, 37000, 42000, 47000, 53000, 60000, 68000, 77000, 87000, 98000, 111000, 125000],
+                totalRegisteredUsers: [100000, 137000, 179000, 226000, 279000, 339000, 407000, 484000, 571000, 669000, 780000, 905000],
+                mauEndOfMonth: [50000, 66500, 85905, 107728, 132996, 161406, 193064, 228272, 267324, 310604, 358486, 411531],
+                tpv: [40000000, 53200000, 68724000, 86182200, 106396740, 129124962, 154451113, 182617660, 213859199, 248483435, 286788812, 329225148],
+                grossRevenue: [480000, 638400, 824688, 1034186, 1276761, 1549500, 1853413, 2191412, 2566310, 2981801, 3441466, 3950702],
+                cogs: [-300000, -302200, -351288, -410266, -480119, -561575, -658824, -772991, -906371, -1061980, -1234732, -1429811],
+                grossProfit: [180000, 336200, 473400, 623920, 796642, 987925, 1194589, 1418421, 1659939, 1919821, 2206734, 2520891],
+                grossMargin: [37.5, 52.67, 57.4, 60.33, 62.4, 63.76, 64.45, 64.73, 64.68, 64.39, 64.11, 63.81],
+                marketingCru: [-500000, -185000, -210000, -235000, -265000, -300000, -340000, -385000, -435000, -490000, -555000, -625000],
+                teamCost: [-83000, -98000, -113000, -129000, -144000, -159000, -174000, -190000, -205000, -220000, -235000, -250000],
+                otherGA: [-50000, -50000, -50000, -50000, -50000, -50000, -50000, -50000, -50000, -50000, -50000, -50000],
+                totalOpex: [-633000, -333000, -373000, -414000, -459000, -509000, -564000, -625000, -690000, -760000, -840000, -925000],
+                netIncome: [-453000, 3200, 100400, 209920, 337642, 478925, 630589, 793421, 969939, 1159821, 1366734, 1595891]
+            };
+            
+            const tableData = [
+                { metric: 'New Registered Users', data: financialData.newRegisteredUsers, format: 'number' },
+                { metric: 'Total Registered Users', data: financialData.totalRegisteredUsers, format: 'number' },
+                { metric: 'MAUs (End of Month)', data: financialData.mauEndOfMonth, format: 'number' },
+                { metric: 'TPV', data: financialData.tpv, format: 'currency' },
+                { metric: 'Gross Revenue', data: financialData.grossRevenue, format: 'currency' },
+                { metric: 'COGS', data: financialData.cogs, format: 'currency' },
+                { metric: 'Gross Profit', data: financialData.grossProfit, format: 'currency' },
+                { metric: 'Gross Margin %', data: financialData.grossMargin, format: 'percent' },
+                { metric: 'Marketing (CRU)', data: financialData.marketingCru, format: 'currency' },
+                { metric: 'Team Cost', data: financialData.teamCost, format: 'currency' },
+                { metric: 'Other G&A', data: financialData.otherGA, format: 'currency' },
+                { metric: 'Total OpEx', data: financialData.totalOpex, format: 'currency' },
+                { metric: 'Net Income / (Loss)', data: financialData.netIncome, format: 'currency' },
+            ];
+
+            const formatValue = (value, type) => {
+                if (type === 'currency') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', compactDisplay: 'short' }).format(value);
+                if (type === 'number') return new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(value);
+                if (type === 'percent') return `${value.toFixed(1)}%`;
+                return value;
+            };
+
+            const populateKPIs = () => {
+                const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+                document.getElementById('kpi-revenue').textContent = formatValue(sum(financialData.grossRevenue), 'currency');
+                document.getElementById('kpi-gross-profit').textContent = formatValue(sum(financialData.grossProfit), 'currency');
+                document.getElementById('kpi-net-income').textContent = formatValue(sum(financialData.netIncome), 'currency');
+                document.getElementById('kpi-mau').textContent = formatValue(financialData.mauEndOfMonth[11], 'number');
+                document.getElementById('kpi-tpv').textContent = formatValue(sum(financialData.tpv), 'currency');
+            };
+
+            const populateTable = () => {
+                const thead = document.querySelector('#full-data-table thead');
+                const tbody = document.querySelector('#full-data-table tbody');
+                let headerHtml = '<tr><th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase tracking-wider">Metric</th>';
+                financialData.months.forEach(month => headerHtml += `<th class="px-6 py-3 text-right font-semibold text-gray-600 uppercase tracking-wider">${month}</th>`);
+                headerHtml += '</tr>';
+                thead.innerHTML = headerHtml;
+
+                let bodyHtml = '';
+                tableData.forEach(row => {
+                    bodyHtml += `<tr class="border-b border-gray-200"><td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800">${row.metric}</td>`;
+                    row.data.forEach(value => {
+                        const formatted = formatValue(value, row.format);
+                        const textColor = value < 0 ? 'text-rose-600' : 'text-gray-700';
+                        bodyHtml += `<td class="px-6 py-4 whitespace-nowrap text-right ${textColor}">${formatted}</td>`;
+                    });
+                    bodyHtml += '</tr>';
+                });
+                tbody.innerHTML = bodyHtml;
+            };
+            
+            let mainChartInstance;
+            const chartColors = {
+                netIncome: 'rgba(34, 197, 94, 1)',
+                opex: 'rgba(244, 63, 94, 0.7)',
+                grossProfit: 'rgba(20, 184, 166, 0.8)',
+                grossRevenue: 'rgba(79, 70, 229, 1)',
+                cogs: 'rgba(239, 68, 68, 0.7)',
+                mau: 'rgba(2, 132, 199, 1)',
+                newUsers: 'rgba(14, 165, 233, 0.6)'
+            };
+
+            const renderMainChart = (metric = 'profitability') => {
+                const ctx = document.getElementById('mainChart').getContext('2d');
+                if (mainChartInstance) {
+                    mainChartInstance.destroy();
+                }
+
+                let datasets, chartTitle, chartSubtitle, chartType = 'bar';
+                
+                switch (metric) {
+                    case 'revenue':
+                        chartTitle = 'Monthly Revenue & Costs';
+                        chartSubtitle = 'Gross Revenue vs. Cost of Revenue (COGS)';
+                        datasets = [
+                            {
+                                label: 'Gross Revenue',
+                                data: financialData.grossRevenue,
+                                backgroundColor: chartColors.grossRevenue,
+                                borderColor: chartColors.grossRevenue,
+                                type: 'line',
+                                fill: false,
+                                tension: 0.1,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'COGS',
+                                data: financialData.cogs.map(v => Math.abs(v)), // Use absolute values for bar chart display
+                                backgroundColor: chartColors.cogs,
+                                yAxisID: 'y',
+                            }
+                        ];
+                        break;
+                    
+                    case 'users':
+                         chartTitle = 'Monthly User Growth';
+                         chartSubtitle = 'Monthly Active Users (MAUs) vs. New Registrations';
+                         datasets = [
+                             {
+                                 label: 'MAUs (End of Month)',
+                                 data: financialData.mauEndOfMonth,
+                                 backgroundColor: chartColors.mau,
+                                 borderColor: chartColors.mau,
+                                 type: 'line',
+                                 fill: false,
+                                 tension: 0.1,
+                                 yAxisID: 'y',
+                             },
+                             {
+                                 label: 'New Registered Users',
+                                 data: financialData.newRegisteredUsers,
+                                 backgroundColor: chartColors.newUsers,
+                                 yAxisID: 'y',
+                             }
+                         ];
+                         break;
+
+                    case 'profitability':
+                    default:
+                        chartTitle = 'Path to Profitability (Monthly)';
+                        chartSubtitle = 'Net Income vs. Key Expense Drivers';
+                        datasets = [
+                            {
+                                label: 'Net Income',
+                                data: financialData.netIncome,
+                                backgroundColor: chartColors.netIncome,
+                                borderColor: chartColors.netIncome,
+                                type: 'line',
+                                fill: false,
+                                tension: 0.1,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'Total OpEx',
+                                data: financialData.totalOpex.map(v => Math.abs(v)),
+                                backgroundColor: chartColors.opex,
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'Gross Profit',
+                                data: financialData.grossProfit,
+                                backgroundColor: chartColors.grossProfit,
+                                yAxisID: 'y',
+                            }
+                        ];
+                        break;
+                }
+
+                document.getElementById('main-chart-title').textContent = chartTitle;
+                document.getElementById('main-chart-subtitle').textContent = chartSubtitle;
+
+                mainChartInstance = new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: financialData.months,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            x: {
+                                stacked: metric === 'profitability' || metric === 'revenue',
+                                grid: { display: false },
+                            },
+                            y: {
+                                stacked: metric === 'profitability' || metric === 'revenue',
+                                beginAtZero: false,
+                                grid: { color: '#EAEAEA', borderDash: [2, 4] },
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatValue(value, 'currency');
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            const originalValue = context.dataset.data[context.dataIndex];
+                                            label += formatValue(originalValue, context.dataset.label.toLowerCase().includes('mau') || context.dataset.label.toLowerCase().includes('user') ? 'number' : 'currency');
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+            
+            const renderGrossMarginChart = () => {
+                const ctx = document.getElementById('grossMarginChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: financialData.months,
+                        datasets: [{
+                            label: 'Gross Margin %',
+                            data: financialData.grossMargin,
+                            borderColor: chartColors.grossProfit,
+                            backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { ticks: { callback: (value) => `${value}%` } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%` } } }
+                    }
+                });
+            };
+
+            const renderUserFunnelChart = () => {
+                const ctx = document.getElementById('userFunnelChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: financialData.months,
+                        datasets: [
+                            {
+                                label: 'New Registered Users',
+                                data: financialData.newRegisteredUsers,
+                                backgroundColor: chartColors.newUsers,
+                            },
+                            {
+                                label: 'Net MAU Growth',
+                                data: financialData.mauEndOfMonth.map((mau, i) => i === 0 ? mau : mau - financialData.mauEndOfMonth[i-1]),
+                                backgroundColor: chartColors.mau,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                         scales: { 
+                             x: { stacked: true }, 
+                             y: { stacked: true, ticks: { callback: (value) => formatValue(value, 'number') } } 
+                        },
+                        plugins: { tooltip: { callbacks: { label: (context) => `${context.dataset.label}: ${formatValue(context.parsed.y, 'number')}` } } }
+                    }
+                });
+            };
+
+            const chartToggleButtons = document.querySelectorAll('.chart-toggle-btn');
+            chartToggleButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const metric = button.dataset.metric;
+                    renderMainChart(metric);
+
+                    chartToggleButtons.forEach(btn => {
+                        btn.classList.remove('bg-indigo-600', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    button.classList.add('bg-indigo-600', 'text-white');
+                    button.classList.remove('bg-gray-200', 'text-gray-700');
+                });
+            });
+
+            populateKPIs();
+            populateTable();
+            renderMainChart('profitability');
+            renderGrossMarginChart();
+            renderUserFunnelChart();
+        });
+    </script>
+</body>
+</html>
